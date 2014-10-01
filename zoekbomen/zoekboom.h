@@ -8,8 +8,14 @@
 #define __ZOEKBOOM_H
 #include <cstdlib>
 #include <iostream>
+   using std::cout;
+   using std::endl;
 #include <queue>
-using std::ostream;
+    using std::ostream;
+#include <utility>
+    using std::pair;
+    using std::make_pair;
+
 /**********************************************************************
 
    Klasse: Binboom met Binknoop: binaire boom
@@ -46,6 +52,7 @@ class Binboom{
                 os<<"(,)";
         }
         void roteer(bool links);
+        pair<Sleutel*,bool> is_tree_correct_rec();
         //pointer naar wortelknoop
          Binknoop<Sleutel,Data>* k;
         //Binknoop* voorloper(Binknoop*);
@@ -76,7 +83,7 @@ template <class Sleutel,class Data>
 class Zoekboom{
     public:
         virtual void voegtoe(const Sleutel&,const Data&);
-        virtual void voegtoe(Binknoop<Sleutel,Data> knoop, const Sleutel&,const Data&);
+        virtual void voegtoe(Binknoop<Sleutel,Data>& knoop, const Sleutel&,const Data&);
         //volgende functie doet niets als er geen knoop is met het gegeven Sleutel
         virtual void verwijder(const Sleutel&);
         //geef pointer naar data horend bij een sleutel
@@ -86,6 +93,7 @@ class Zoekboom{
             b.deBinboom.schrijf(os);
             return os;
         };
+        virtual bool is_tree_correct();
 
     protected:
         //zoekplaats: geeft adres van boom waaraan knoop hangt, of zou moeten hangen
@@ -146,18 +154,18 @@ Data* Zoekboom<Sleutel,Data>::zoekdata(const Sleutel& sl){
 }
 
 template <class Sleutel,class Data>
-void Zoekboom<Sleutel,Data>::voegtoe(Binknoop<Sleutel,Data> knoop, const Sleutel& sl,const Data& data){
-    Binknoop<Sleutel,Data> *kind;
+void Zoekboom<Sleutel,Data>::voegtoe(Binknoop<Sleutel,Data>& knoop, const Sleutel& sl,const Data& data){
+    Binknoop<Sleutel,Data> **kind;
     if (sl < knoop.sl)
-        kind=knoop.links.k;
+        kind=&knoop.links.k;
     else
-        kind=knoop.rechts.k;
-    if (kind==0){
-        kind=new Binknoop<Sleutel,Data>(sl,data);
-        kind->ouder=& knoop;
+        kind=&knoop.rechts.k;
+    if (*kind==0){
+        *kind=new Binknoop<Sleutel,Data>(sl,data);
+        (*kind)->ouder=& knoop;
     }
     else
-        voegtoe(*kind, sl,data);
+        voegtoe(**kind, sl,data);
 }
 
 template <class Sleutel,class Data>
@@ -258,6 +266,40 @@ void Binboom<Sleutel,Data>::schrijf(ostream& os) const{
     else{
         schrijf(os,k);
     }
+}
+
+template <class Sleutel,class Data>
+bool Zoekboom<Sleutel,Data>::is_tree_correct() {
+    pair<Sleutel*,bool> antwoord = this->deBinboom.is_tree_correct_rec();
+    return antwoord.second;
+}
+
+template <class Sleutel,class Data>
+pair<Sleutel*, bool> Binboom<Sleutel,Data>::is_tree_correct_rec() {
+    if(this->k == 0) {
+        return make_pair(0,true);
+    }
+    pair<Sleutel*,bool> antwoord_links;
+    pair<Sleutel*,bool> antwoord_rechts;
+
+    antwoord_links = this->k->links.is_tree_correct_rec();
+    antwoord_rechts = this->k->rechts.is_tree_correct_rec();
+
+    if(antwoord_links.second == false || antwoord_rechts.second == false) {
+        return make_pair(&k->sl, false);
+    }
+
+    if(antwoord_links.first != 0 && *antwoord_links.first > k->sl) {
+        cout << "fout bij: " << *antwoord_links.first << endl;
+        return make_pair(&k->sl, false);
+    }
+
+    if(antwoord_rechts.first != 0 && *antwoord_rechts.first < k->sl) {
+        cout << "fout bij: " << *antwoord_rechts.first << endl;
+        return make_pair(&k->sl, false);
+    }
+
+    return make_pair(&k->sl,true);
 }
 
 #endif

@@ -14,12 +14,12 @@ using std::endl;
 int main(int argc, char** argv) {
 	Zoekboom<int,int> boom;
 
-	boom.voegtoe(1,2);
-	boom.voegtoe(2,3);
+	//boom.voegtoe(1,2);
+	//boom.voegtoe(2,3);
 
-    // for(int i = 0; i < 100; i++) {
-    // 	boom.voegtoe(i,i);
-    // }
+    for(int i = 0; i < 100; i++) {
+    	boom.voegtoe(i,i);
+    }
 
     cout << boom << endl;
 
