@@ -22,6 +22,7 @@ int main(int argc, char** argv) {
     }
 
     cout << boom << endl;
+    cout << boom.is_tree_correct() << endl;
 
     return 0;
 }

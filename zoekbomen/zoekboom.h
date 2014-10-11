@@ -52,7 +52,7 @@ class Binboom{
                 os<<"(,)";
         }
         void roteer(bool links);
-        pair<Sleutel*,bool> is_tree_correct_rec();
+        Sleutel* is_tree_correct_rec(bool&);
         //pointer naar wortelknoop
          Binknoop<Sleutel,Data>* k;
         //Binknoop* voorloper(Binknoop*);
@@ -270,37 +270,44 @@ void Binboom<Sleutel,Data>::schrijf(ostream& os) const{
 
 template <class Sleutel,class Data>
 bool Zoekboom<Sleutel,Data>::is_tree_correct() {
-    pair<Sleutel*,bool> antwoord = this->deBinboom.is_tree_correct_rec();
-    return antwoord.second;
+    bool correct;
+    Sleutel* antwoord = this->deBinboom.is_tree_correct_rec(correct);
+    return correct;
 }
 
 template <class Sleutel,class Data>
-pair<Sleutel*, bool> Binboom<Sleutel,Data>::is_tree_correct_rec() {
+Sleutel* Binboom<Sleutel,Data>::is_tree_correct_rec(bool& correct) {
+
+    // een lege boom voldoet zoiezo
     if(this->k == 0) {
-        Sleutel* i;
-        return make_pair(i,true);
-    }
-    pair<Sleutel*,bool> antwoord_links;
-    pair<Sleutel*,bool> antwoord_rechts;
-
-    antwoord_links = this->k->links.is_tree_correct_rec();
-    antwoord_rechts = this->k->rechts.is_tree_correct_rec();
-
-    if(antwoord_links.second == false || antwoord_rechts.second == false) {
-        return make_pair(&k->sl, false);
+        correct = true;
+        return 0;
     }
 
-    if(antwoord_links.first != 0 && *antwoord_links.first > k->sl) {
-        cout << "fout bij: " << *antwoord_links.first << endl;
-        return make_pair(&k->sl, false);
+    // is linkerkind correcte boom?
+    // is linkerkind groter dan huidige?
+    Sleutel* sleutel_linkerkind = this->k->links.is_tree_correct_rec(correct);
+    if(!correct) {
+        return 0;
+    }
+    if(sleutel_linkerkind != 0 && *sleutel_linkerkind > this->k->sl) {
+        correct = false;
+        cout << "fout bij linkertak: linkertak is: " << sleutel_linkerkind << " sleutel is: " << k->sl  << endl;
+        return 0;
     }
 
-    if(antwoord_rechts.first != 0 && *antwoord_rechts.first < k->sl) {
-        cout << "fout bij: " << *antwoord_rechts.first << endl;
-        return make_pair(&k->sl, false);
+    // is rechterkind correcte boom?
+    // is rechterkind kleiner dan huidige?
+    Sleutel* sleutel_rechterkind = this->k->rechts.is_tree_correct_rec(correct);
+    if(!correct) {
+        return 0;
     }
-
-    return make_pair(&k->sl,true);
+    if(sleutel_rechterkind != 0 && *sleutel_rechterkind < this->k->sl) {
+        correct = false;
+        cout << "fout bij rechtertak: rechtertak is: " << sleutel_rechterkind << " sleutel is: " << k->sl  << endl;
+        return 0;
+    }
+    return &this->k->sl;
 }
 
 #endif
