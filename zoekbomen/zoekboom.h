@@ -277,7 +277,8 @@ bool Zoekboom<Sleutel,Data>::is_tree_correct() {
 template <class Sleutel,class Data>
 pair<Sleutel*, bool> Binboom<Sleutel,Data>::is_tree_correct_rec() {
     if(this->k == 0) {
-        return make_pair(0,true);
+        Sleutel* i;
+        return make_pair(i,true);
     }
     pair<Sleutel*,bool> antwoord_links;
     pair<Sleutel*,bool> antwoord_rechts;

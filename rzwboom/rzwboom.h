@@ -5,6 +5,12 @@
 using std::ostream;
 using std::max;
 using std::pair;
+using std::make_pair;
+using std::min;
+using std::max;
+using std::cout;
+using std::endl;
+
 
 
 template <class T,class D>
@@ -262,3 +268,124 @@ void Rzwboom<T,D>::schrijf(ostream& os ,Rzwknoop<T,D>* kn){
         os<<"---";
 }
 
+
+template <class T,class D>
+int Rzwboom<T,D>::diepte() {
+    if (this->k == 0) {
+        return 1;
+    } else {
+        int diepte_links = this->k->links.diepte()+1;
+        int diepte_rechts = this->k->rechts.diepte()+1;
+        return (diepte_links > diepte_rechts)? diepte_links : diepte_rechts;
+    }
+}
+
+template <class T,class D>
+int Rzwboom<T,D>::zwarte_diepte() {
+    return this->zwarte_diepte_rec().first;
+}
+
+// geeft pair terug met <zwartediepte, is_zwart>
+template <class T,class D>
+pair<int,int> Rzwboom<T,D>::zwarte_diepte_rec() {
+    if (this->k == 0) {
+        return make_pair(1,1);
+    } else {
+        // get depth and color of left and right subtree
+        pair<int,int> antwoord_links = this->k->links.zwarte_diepte_rec();
+        pair<int,int> antwoord_rechts = this->k->rechts.zwarte_diepte_rec();
+        int diepte_links = antwoord_links.first;
+        int diepte_rechts = antwoord_rechts.first;
+        int rzw_links = antwoord_links.second;
+        int rzw_rechts = antwoord_rechts.second;
+
+        // did lower tree say it is "bad"?
+        if(diepte_links == -1 || diepte_rechts == -1) {
+            return make_pair(-1,this->k->rzw);
+        }
+        // do depths match?
+        if(diepte_links != diepte_rechts) {
+            return make_pair(-1,this->k->rzw);
+        }
+        //TODO: check if color is correct
+        if (this->k->rzw + rzw_links < 1 || this->k->rzw + rzw_rechts < 1) {
+            return make_pair(-1,this->k->rzw);
+        }
+
+
+        int diepte = diepte_links + this->k->rzw;
+        return make_pair(diepte,this->k->rzw);
+    }
+}
+
+template <class T,class D>
+bool Rzwboom<T,D>::is_kleurbaar() {
+
+    return this->is_kleurbaar_rec().first.first != -1;
+}
+
+// geeft dubbele pair terug <<min_zwarte_lengte,max_zwarte_lengte>, rzw bij min_zwarte_lengte>
+template <class T,class D>
+pair<pair<int,int>,int> Rzwboom<T,D>::is_kleurbaar_rec() {
+    if (this->k == 0) {
+        //Knoop is null, dus boom is een blad. Blad is sowieso zwart dus min en max zijn 1.
+        return make_pair(make_pair(1,1),zwart);
+    } else {
+        // get lengt of child trees
+        pair<pair<int,int>,int> antwoord_links = this->k->links.is_kleurbaar_rec();
+        pair<pair<int,int>,int> antwoord_rechts = this->k->rechts.is_kleurbaar_rec();
+        pair<int,int> interval_links = antwoord_links.first;
+        pair<int,int> interval_rechts = antwoord_rechts.first;
+        int rzw_links = antwoord_links.second;
+        int rzw_rechts = antwoord_rechts.second;
+
+        // als kind al heeft aangegeven dat het niet kleurbaar is
+        // dan is deze knoop dat ook niet
+        if (interval_links.first == -1 || interval_rechts.first == -1 ) {
+            return make_pair(make_pair(-1,-1),zwart);
+        }
+
+        // intersectie beide intervallen
+        pair<int,int> interval_huidig;
+        interval_huidig.first = max(interval_links.first, interval_rechts.first);
+        interval_huidig.second = min(interval_links.second, interval_rechts.second);
+
+        // debug
+        cout << endl << "knoop: " << this->k->sl << endl;
+        cout << "antwoord linkertak:  " << interval_links.first << " " << interval_links.second << " knoop rood? " << (rzw_links==rood) << endl;
+        cout << "antwoord rechtertak: " << interval_rechts.first << " " << interval_rechts.second << " knoop rood? " << (rzw_rechts==rood) << endl;
+        cout << interval_huidig.first << " " << interval_huidig.second << endl;
+
+        // als intersectie geen getallen bevat dan is het niet mogelijk om boom rood-zwart evenwichtig te maken
+        // de boom is dus niet kleurbaar
+        if (interval_huidig.first > interval_huidig.second) {
+            return make_pair(make_pair(-1,-1),zwart); 
+        }
+
+        // BOOM IS KLEURBAAR, maak interval klaar om gereturned te worden
+        // huidige knoop kan altijd zwart worden, dus max grens ++;
+        interval_huidig.second++;
+
+        // huidige knoop kan enkel rood worden als linker en rechterkind beiden zwart zijn
+        // kinderen worden pas (mogelijks) rood bij hun minimum-zwarte-diepte
+        // kijk of, voor het huidig minimum, de kinderen hun minimum-zwarte-diepte moeten aannemen, en kijk dan of ze voor die lengte rood zijn
+        int rzw_huidig;
+        if(interval_huidig.first == interval_links.first && rzw_links == rood) {
+            // linkerkind moet min-zwarte-diepte aannemen en is rood voor die diepte
+            // dus huidige knoop kan enkel zwart zijn
+            interval_huidig.first++;
+            rzw_huidig = zwart;
+        } else if (interval_huidig.first == interval_rechts.first && rzw_rechts == rood){
+            // rechterkind moet min-zwarte-diepte aannemen en is rood voor die diepte
+            // dus huidige knoop kan enkel zwart zijn
+            interval_huidig.first++;
+            rzw_huidig = zwart;
+        } else {
+            // geen van beide kinderen is rood voor de diepte die ze moeten aannemen
+            // dus huidige knoop mag rood zijn
+            rzw_huidig = rood;
+        }
+
+        return make_pair(interval_huidig, rzw_huidig);
+    }
+}
