@@ -26,3 +26,10 @@
 *.exe
 *.out
 *.app
+
+# Binary files (because sublime text does not put them in seperate directory)
+main
+rzwboom
+zoekboom
+btree
+schijf
