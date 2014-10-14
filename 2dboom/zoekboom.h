@@ -12,6 +12,8 @@
     using std::pair;
     using std::make_pair;
     using std::string;
+#include <queue>
+#include <cassert>
 
 /**********************************************************************
 
@@ -33,14 +35,10 @@ class Binboom{
         Binboom():k(0){}
         ~Binboom();
 
-        void schrijf(ostream&) const;
-        void schrijf(ostream& os,Binknoop* kn) const;
-        //pointer naar wortelknoop
+        void schrijf(ostream&);
+        void schrijf(ostream& os ,Binknoop* kn);
 
-        //Binknoop* voorloper(Binknoop*);
-
-    	void voegtoe(const punt2& punt,const string& data);
-
+    	void voegtoe(const punt2& punt,const string& data, Binknoop*); 
 };
 
 class Binknoop{
@@ -50,6 +48,7 @@ class Binknoop{
         bool sorteer_x;
         Binboom links,rechts;
         Binknoop(const punt2& _sl,const string& _data):sl(_sl),data(_data){}
+        Binknoop* ouderknoop;
 };
 
 /**********************************************************************
@@ -78,11 +77,36 @@ class Zoekboom{
 };
 
 
-void Binboom::schrijf(ostream& os) const {
-    if (k!=0)
-        os<<"("<<k->sl<<","<<k->data<<")";
+void Binboom::schrijf(ostream& os){
+    if (k!=0){
+       std::queue<Binknoop*, std::deque<Binknoop*> > q;
+       q.push(k);
+       while(!q.empty()){
+           Binknoop* nu=q.front();
+           schrijf(os,nu);
+           os<<" links: ";
+           schrijf(os,nu->links.k);
+           os<<" rechts: ";
+           schrijf(os,nu->rechts.k);
+           os<<" sorteer_x: " << nu->sorteer_x;
+           os<<endl;
+           if (nu->links.k!=0)
+               q.push(nu->links.k);
+           if (nu->rechts.k!=0)
+               q.push(nu->rechts.k);
+           q.pop();
+       }
+    }
+    else{
+        schrijf(os,k);
+    }
+}
+
+void Binboom::schrijf(ostream& os ,Binknoop* kn){
+    if (kn!=0)
+        os <<"("<<kn->sl<<","<<kn->data<<")";
     else
-        os<<"(,)";
+        os<<"---";
 }
 
 Binboom::~Binboom(){
@@ -93,14 +117,43 @@ Binboom::~Binboom(){
 
 
 
-
 void Zoekboom::voegtoe(const punt2& punt,const string& data) {
-	this->deBinboom.voegtoe(punt, data);
+	this->deBinboom.voegtoe(punt, data, 0);
 }
 
-void Binboom::voegtoe(const punt2& punt,const string& data) {
+void Binboom::voegtoe(const punt2& punt,const string& data, Binknoop* ouderk) {
 	if(this->k == 0) {
 		this->k = new Binknoop(punt, data);
+		if(ouderk != 0) {
+			this->k->sorteer_x = !ouderk->sorteer_x;
+		} else {
+			this->k->sorteer_x = true;
+		}
+		this->k->ouderknoop = ouderk;
+		return;
+	}
+
+	// vergelijk sleutel
+	bool steek_hem_links;
+	if(this->k->sorteer_x) {
+		if(punt.x < this->k->sl.x) {
+			steek_hem_links = true;
+		} else {
+			steek_hem_links = false;
+		}
+	} else {
+		if(punt.y < this->k->sl.y) {
+			steek_hem_links = true;
+		} else {
+			steek_hem_links = false;
+		}
+	}
+
+	//steek hem op de juiste plaats
+	if(steek_hem_links) {
+		this->k->links.voegtoe(punt,data, this->k);
+	} else {
+		this->k->rechts.voegtoe(punt,data, this->k);
 	}
 }
 #endif
