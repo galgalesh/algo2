@@ -7,6 +7,8 @@
 	using std::istringstream;
 #include <vector>
 	using std::vector;
+#include <map>
+	using std::map;
 #include <string>
 	using std::string;
 #include "fibonacci.h"
@@ -15,7 +17,7 @@ int main(int argc, char ** argv) {
 	int k;
 	vector<pair<int, int> > a_waarden;	// <index, a-waarde>
 	deque<int> start_waarden;
-	vector<pair<int, int> > n_waarden;	// <n-waarde, f(n)>
+	map<int, int> n_waarden;			// <n-waarde, f(n)>
 	
 	ifstream input("input.txt");
 	if(input.good()) {
@@ -48,7 +50,7 @@ int main(int argc, char ** argv) {
 		}
 		// n-waarden inlezen
 		while(input >> temp) {
-			n_waarden.push_back(make_pair(temp, 0));
+			n_waarden.insert(make_pair(temp, 0));
 		}
 	}
 	
@@ -62,11 +64,23 @@ int main(int argc, char ** argv) {
 		cout << "\t- " << start_waarden.at(i) << endl;
 	}
 	cout << "n-waarden:" << endl;
-	for(int i=0; i<n_waarden.size(); i++) {
-		cout << "\t- " << n_waarden.at(i).first << endl;
+	map<int, int>::iterator it = n_waarden.begin();
+	while(it != n_waarden.end()) {
+		cout << "\t- " << it->first << endl;
+		it++;
 	}
 	
-	Fibonacci(start_waarden, a_waarden);
+	Fibonacci fib(start_waarden, a_waarden);
 	
+	int temp;
+	it = n_waarden.begin();
+	while(it != n_waarden.end()) {
+		fib.zoek_n_waarde(it->first, temp);
+		it->second = temp;
+		cout << it->first << "\t=>\t" << it->second << endl;
+
+		it++;		
+	}
+		
 	return 0;	
 }
