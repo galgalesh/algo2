@@ -75,7 +75,30 @@ int main(int argc, char ** argv) {
 //		it1++;
 //	}
 	
-	Fibonacci fib(start_waarden, a_waarden);
+//	Fibonacci fib(start_waarden, a_waarden);
+//	
+//  	high_resolution_clock::time_point t1 = high_resolution_clock::now();
+//
+//	int temp;
+//	map<int, int>::iterator it = n_waarden.begin();
+//	while(it != n_waarden.end()) {
+//		fib.zoek_n_waarde(it->first, temp);
+//		it->second = temp;
+//		cout << it->first << "\t=>\t" << it->second << endl;
+//
+//		it++;
+//	}
+//	
+//	high_resolution_clock::time_point t2 = high_resolution_clock::now();
+//	duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
+//	cout << "Job finished in " << time_span.count() << " seconds." << endl;
+	
+	map<int, int> start_waarden_2;
+	for(int i=0; i<start_waarden.size(); i++) {
+		start_waarden_2.insert(make_pair(i, start_waarden.at(i))));
+	}
+	
+	Fibonacci_2 fib_2(start_waarden_2, a_waarden);
 	
   	high_resolution_clock::time_point t1 = high_resolution_clock::now();
 
@@ -92,6 +115,8 @@ int main(int argc, char ** argv) {
 	high_resolution_clock::time_point t2 = high_resolution_clock::now();
 	duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
 	cout << "Job finished in " << time_span.count() << " seconds." << endl;
+	
+	
 		
 	return 0;	
 }
