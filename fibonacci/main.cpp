@@ -11,6 +11,11 @@
 	using std::map;
 #include <string>
 	using std::string;
+#include <ctime>
+#include <ratio>
+#include <chrono>
+	using namespace std::chrono;
+	
 #include "fibonacci.h"
 
 int main(int argc, char ** argv) {
@@ -19,7 +24,7 @@ int main(int argc, char ** argv) {
 	deque<int> start_waarden;
 	map<int, int> n_waarden;			// <n-waarde, f(n)>
 	
-	ifstream input("input.txt");
+	ifstream input("fib.txt");
 	if(input.good()) {
 		string line;
 		istringstream ss;
@@ -54,33 +59,64 @@ int main(int argc, char ** argv) {
 		}
 	}
 	
-	cout << "k = " << k << endl;
-	cout << "a-waarden:" << endl;
-	for(int i=0; i<a_waarden.size(); i++) {
-		cout << "\t[" << a_waarden.at(i).first << "]\t=> " << a_waarden.at(i).second << endl;
-	}
-	cout << "start-waarden:" << endl;
+//	cout << "k = " << k << endl;
+//	cout << "a-waarden:" << endl;
+//	for(int i=0; i<a_waarden.size(); i++) {
+//		cout << "\t[" << a_waarden.at(i).first << "]\t=> " << a_waarden.at(i).second << endl;
+//	}
+//	cout << "start-waarden:" << endl;
+//	for(int i=0; i<start_waarden.size(); i++) {
+//		cout << "\t[" << i << "]\t=> " << start_waarden.at(i) << endl;
+//	}
+//	cout << "n-waarden:" << endl;
+//	map<int, int>::iterator it1 = n_waarden.begin();
+//	while(it1 != n_waarden.end()) {
+//		cout << "\t- " << it1->first << endl;
+//		it1++;
+//	}
+	
+//	Fibonacci fib(start_waarden, a_waarden);
+//	
+//  	high_resolution_clock::time_point t1 = high_resolution_clock::now();
+//
+//	int temp;
+//	map<int, int>::iterator it = n_waarden.begin();
+//	while(it != n_waarden.end()) {
+//		fib.zoek_n_waarde(it->first, temp);
+//		it->second = temp;
+//		cout << it->first << "\t=>\t" << it->second << endl;
+//
+//		it++;
+//	}
+//	
+//	high_resolution_clock::time_point t2 = high_resolution_clock::now();
+//	duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
+//	cout << "Job finished in " << time_span.count() << " seconds." << endl;
+	
+	map<int, int> start_waarden_2;
 	for(int i=0; i<start_waarden.size(); i++) {
-		cout << "\t- " << start_waarden.at(i) << endl;
-	}
-	cout << "n-waarden:" << endl;
-	map<int, int>::iterator it = n_waarden.begin();
-	while(it != n_waarden.end()) {
-		cout << "\t- " << it->first << endl;
-		it++;
+		start_waarden_2.insert(make_pair(i, start_waarden.at(i))));
 	}
 	
-	Fibonacci fib(start_waarden, a_waarden);
+	Fibonacci_2 fib_2(start_waarden_2, a_waarden);
 	
+  	high_resolution_clock::time_point t1 = high_resolution_clock::now();
+
 	int temp;
-	it = n_waarden.begin();
+	map<int, int>::iterator it = n_waarden.begin();
 	while(it != n_waarden.end()) {
 		fib.zoek_n_waarde(it->first, temp);
 		it->second = temp;
 		cout << it->first << "\t=>\t" << it->second << endl;
 
-		it++;		
+		it++;
 	}
+	
+	high_resolution_clock::time_point t2 = high_resolution_clock::now();
+	duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
+	cout << "Job finished in " << time_span.count() << " seconds." << endl;
+	
+	
 		
 	return 0;	
 }
