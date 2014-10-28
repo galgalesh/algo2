@@ -33,6 +33,8 @@ class Boom{
 
         void voegtoe(T, D);
         bool zoek_top_down(T& zoeksleutel, D& gezochtedata);
+        bool is_correct();
+        bool is_correct_rec(T&, bool linkerkind);
 
         friend ostream& operator<<(ostream& os,Boom<T,D>& b){
             b.schrijf(os);
@@ -158,15 +160,61 @@ bool Boom<T,D>::zoek_top_down(T& zoeksleutel, D& gezochtedata) {
                 this->k = temp;
             }
         } else {
-            // rechts afdalen
+            if(this->k->rechts.k == 0) { return false; }
+            if ( this->k->rechts.k->sl == zoeksleutel
+                || (this->k->rechts.k->sl > zoeksleutel && this->k->rechts.k->links.k == 0)
+                || (this->k->rechts.k->sl < zoeksleutel && this->k->rechts.k->rechts.k == 0) ) {
+                // rechterkind is eindknoop
+                temp = this->k->rechts.k;
+                this->k->rechts.k = 0;
+                L.voegtoe_grootste(this->k);
+                this->k = temp;
+            } else if(this->k->rechts.k->sl < zoeksleutel) {
+                // haal linkerondervleugel er af
+                temp = this->k->rechts.k->rechts.k;
+                this->k->rechts.k->rechts.k = 0;
+                // zet volledige boom behalve linkerondervleugel op R
+                L.voegtoe_grootste(this->k);
+                // zet rechtervleugel als root
+                this->k = temp;
+            } else if(this->k->rechts.k->sl > zoeksleutel) {
+                // haal vleugel die we willen hebben er af
+                temp = this->k->rechts.k->links.k;
+                this->k->rechts.k->links.k = 0;
+                // zet rechtervleugel op R
+                R.voegtoe_kleinste(this->k->rechts.k);
+                this->k->rechts.k = 0;
+                // zet huidige boom op L 
+                L.voegtoe_grootste(this->k);
+                // zet vleugel die we willen hebben als root
+                this->k = temp;
+            }
         }
     }
 
     return false;
 }
 
+template <class T,class D>
+bool Boom<T,D>::is_correct(){
+    if(this->k == 0) {
+        return true;
+    } else {
+        return (this->k->links.is_correct_rec(this->k->sl, true) && this->k->rechts.is_correct_rec(this->k->sl, false));
+    }
+}
 
-
+template <class T,class D>
+bool Boom<T,D>::is_correct_rec(T& oudersleutel, bool linkerkind){
+    if(this->k == 0) {
+        return true;
+    } else {
+         if(linkerkind && oudersleutel < this->k->sl || !linkerkind && oudersleutel > this->k->sl ) {
+            return false;
+         }
+        return (this->k->links.is_correct_rec(this->k->sl, true) && this->k->rechts.is_correct_rec(this->k->sl, false));
+    }
+}
 
 
 

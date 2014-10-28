@@ -13,21 +13,25 @@ using std::endl;
 int main(int argc, char** argv) {
 	Boom<int,int> boom;
 
-	// for(int i = 0; i < 20; i++) {
-	// 	boom.voegtoe(i,i);
-	// }
-	boom.voegtoe(3,3);
-	boom.voegtoe(2,2);
-	boom.voegtoe(1,1);
+	for(int i = 0; i < 20; i++) {
+	 	boom.voegtoe(i,i);
+	}
 
-
-	cout << "boom na creatie" << endl;
+	bool fout = false;
+	for(int i = 0; i < 20; i++) {
+		int antwoord = -1;
+	 	boom.zoek_top_down(i, antwoord);
+	 	if(antwoord != i || !boom.is_correct()) {
+	 		fout = true;
+	 		cout << "fout bij" << i << endl;
+	 	}
+	}
 	cout << boom << endl;
-	int zoek = 1;
-	int gevonden = 3;
-	boom.zoek_top_down(zoek, gevonden);
-	cout << "boom na zoeken van 1" << endl;
-	cout << boom;
+
+	if(!fout) {
+		cout << "algoritme werkt!" << endl;
+	}
+
 
     return 0;
 }
