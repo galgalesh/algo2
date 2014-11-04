@@ -122,9 +122,23 @@ class Stroomnetwerk:public GraafMetTakdata<GERICHT, T >{
         };
 
         Stroomnetwerk(const GraafMetTakdata<GERICHT, T>& gr, int _van, int _naar):
-                            Graaf<GERICHT>(gr.aantalKnopen()),van(_van),naar(_naar){
+                            Graaf<GERICHT>(gr),GraafMetTakdata<GERICHT, T>(gr),van(_van),naar(_naar){
             cout << "CONSTRUCTOR: Stroomnetwerk_copy + _van _naar" << endl;
             Stroomnetwerk<T> restnetwerk(gr);
+
+
+            //  alle takdata op 0 zetten
+
+                int size = this->takdatavector.size();
+                this->takdatavector.clear();
+                this->takdatavector.resize(size);
+
+
+
+
+            cout << "THIS---------------------------------" << endl;
+            cout << *this << endl;
+            int i = 2/(2-2);
             Pad<T> vergrotendpad;
             Vergrotendpadzoeker<T> vg(restnetwerk, van, naar, vergrotendpad);
             while(vergrotendpad.size() !=0 ){
