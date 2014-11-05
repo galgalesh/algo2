@@ -156,7 +156,7 @@ void Graaf<RT>::controleerKnoopnummer(int k) const{
 }
 
 template<RichtType RT>
-Graaf<RT>::Graaf(int n) : knopen(n), hoogsteVerbindingsnummer(0){cout << "CONSTRUCTOR: Graaf " << n << endl;};
+Graaf<RT>::Graaf(int n) : knopen(n), hoogsteVerbindingsnummer(0){};
 
 
 template<RichtType RT>
@@ -290,7 +290,7 @@ std::ostream &operator<<(std::ostream &os, const Graaf<RT> &g){
 template<RichtType RT,class Takdata>
 class GraafMetTakdata: public virtual Graaf<RT>{
 public:
-    GraafMetTakdata(int n=0):Graaf<RT>(n){cout << "CONSTRUCTOR: GraafMetTakdata "  << n << endl;};
+    GraafMetTakdata(int n=0):Graaf<RT>(n){};
     //Noot: toevoegfunctie zonder takdata op te geven kan alleen gebruikt als de klasse
     //      Takdata een defaultconstructor heeft.
     virtual int voegVerbindingToe(int van, int naar); 
@@ -321,7 +321,7 @@ int GraafMetTakdata<RT,Takdata>::voegVerbindingToe(int van, int naar){
 
 template<RichtType RT,class Takdata>
 int GraafMetTakdata<RT,Takdata>::voegVerbindingToe(int van, int naar, const Takdata& td){
-    std::cout << "SANITY" << std::endl;
+    //std::cout << "SANITY" << std::endl;
     bool isnieuwtaknummer=this->vrijgekomenVerbindingsnummers.empty();
     int taknummer=Graaf<RT>::voegVerbindingToe(van,naar);
     if (isnieuwtaknummer)

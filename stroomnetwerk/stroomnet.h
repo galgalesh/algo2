@@ -118,30 +118,22 @@ class Stroomnetwerk:public GraafMetTakdata<GERICHT, T >{
         //van Graaf op en krijgen we een lege graaf.
         Stroomnetwerk(const GraafMetTakdata<GERICHT, T>& gr):
                             Graaf<GERICHT>(gr),GraafMetTakdata<GERICHT, T>(gr){
-            cout << "CONSTRUCTOR: Stroomnetwerk_copy" << endl;
+            //cout << "CONSTRUCTOR: Stroomnetwerk_copy" << endl;
         };
 
         Stroomnetwerk(const GraafMetTakdata<GERICHT, T>& gr, int _van, int _naar):
-                            Graaf<GERICHT>(gr),GraafMetTakdata<GERICHT, T>(gr),van(_van),naar(_naar){
-            cout << "CONSTRUCTOR: Stroomnetwerk_copy + _van _naar" << endl;
+                            Graaf<GERICHT>(gr.aantalKnopen()),van(_van),naar(_naar){
+            //cout << "CONSTRUCTOR: Stroomnetwerk_copy + _van _naar" << endl;
             Stroomnetwerk<T> restnetwerk(gr);
 
-
-            //  alle takdata op 0 zetten
-
-                int size = this->takdatavector.size();
-                this->takdatavector.clear();
-                this->takdatavector.resize(size);
-
-
-
-
-            cout << "THIS---------------------------------" << endl;
-            cout << *this << endl;
-            int i = 2/(2-2);
+            int j = 0;
+            //cout << "THIS---------------------------------" << endl;
+            //cout << *this << endl;
+            //int i = 2/(2-2);
             Pad<T> vergrotendpad;
             Vergrotendpadzoeker<T> vg(restnetwerk, van, naar, vergrotendpad);
             while(vergrotendpad.size() !=0 ){
+                cout << "pad vergroten keer: " << j++ << endl;
                 restnetwerk-=vergrotendpad;
 
                 *this+=vergrotendpad;
@@ -160,40 +152,17 @@ class Stroomnetwerk:public GraafMetTakdata<GERICHT, T >{
 
 template <class T>//T = takdata
 T Stroomnetwerk<T>::geefCapaciteit() {
-    Pad<T> pad;
-    Vergrotendpadzoeker<T> zoeker(*this, van, naar, pad);
-    return pad.geefCapaciteit();
+    int capaciteit = 0;
+    for (std::map<int, int>::iterator i = this->knopen[van].begin(); i != this->knopen[van].end(); ++i)
+    {
+        capaciteit += this->takdatavector[i->second];
+    }
+    return capaciteit;
 
 }
 
 template <class T>
 Stroomnetwerk<T>& Stroomnetwerk<T>::operator-=(const Pad<T>& pad) {
-    cout << "JOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO-" << this->geefTakdata(1,0) << endl;
-
-
-
-    // if(pad.size() < 2) {
-    //     std::cout << "ERROR: pad van minder dan 2 knopen" << std::endl;
-    //     return *this;
-    // }
-
-    // for (int i=0; i<(pad.size()-1); i++ ){
-    //     T* takdata = this->geefTakdata(pad[i],pad[i+1]);
-    //     if(takdata == 0) {
-    //         std::cout << "ERROR bij i = "<< i << std::endl;
-    //         std::cout << "van: " << pad[i] << " " << pad[i+1] << std::endl;
-    //         assert(false);
-    //     }
-    //     (*takdata)-=pad.geefCapaciteit();
-    // }
-    return *this;
-}
-
-template <class T>
-Stroomnetwerk<T>& Stroomnetwerk<T>::operator+=(const Pad<T>& pad) {
-    cout << "JOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO+" << this->geefTakdata(1,0) << endl;
-    cout << *this << endl;
-
 
     if(pad.size() < 2) {
         std::cout << "ERROR: pad van minder dan 2 knopen" << std::endl;
@@ -201,14 +170,83 @@ Stroomnetwerk<T>& Stroomnetwerk<T>::operator+=(const Pad<T>& pad) {
     }
 
     for (int i=0; i<(pad.size()-1); i++ ){
-        T* takdata = this->geefTakdata(pad[i],pad[i+1]);
-        if(takdata == 0) {
-            std::cout << "ERROR bij i = "<< i << std::endl;
-            std::cout << "van: " << pad[i] << " " << pad[i+1] << std::endl;
-            assert(false);
+        T* takdata_heen = this->geefTakdata(pad[i],pad[i+1]);
+        T* takdata_terug = this->geefTakdata(pad[i+1],pad[i]);
+        // als de heenverbinding bestaat
+
+        if(takdata_terug == 0) {
+            this->voegVerbindingToe(pad[i+1], pad[i], pad.geefCapaciteit());
+            takdata_terug = this->geefTakdata(pad[i+1],pad[i]);
+        } else {
+            *takdata_terug += pad.geefCapaciteit();
         }
-        (*takdata)+=pad.geefCapaciteit();
+
+        (*takdata_heen) -= pad.geefCapaciteit();
+
+        if(*takdata_heen < 0) {
+            cout << "DIT isM"<< endl;
+            assert(false);
+            // inverteer verbinding
+            this->voegVerbindingToe(pad[i+1], pad[i], *takdata_heen * -1);
+        }
+
+        if(*takdata_heen <=0) {
+            // verwijder oude geinverteerde- of nulverbinding
+            this->verwijderVerbinding(pad[i], pad[i+1]);
+        }
     }
+
+    return *this;
+}
+
+template <class T>
+Stroomnetwerk<T>& Stroomnetwerk<T>::operator+=(const Pad<T>& pad) {
+
+    if(pad.size() < 2) {
+        std::cout << "ERROR: pad van minder dan 2 knopen" << std::endl;
+        return *this;
+    }
+
+    for (int i=0; i<(pad.size()-1); i++ ){
+        T* takdata_heen = this->geefTakdata(pad[i],pad[i+1]);
+        if(takdata_heen == 0) {
+            // als heenverbinding niet bestaat
+            T* takdata_terug = this->geefTakdata(pad[i+1], pad[i]);
+            if(takdata_terug == 0) {
+                // als terugverbinding niet bestaat
+                this->voegVerbindingToe(pad[i], pad[i+1], pad.geefCapaciteit());
+            } else {
+                // als terugverbinding wel bestaat
+                (*takdata_terug) -= pad.geefCapaciteit();
+
+                if(*takdata_terug < 0) {
+                    // inverteer verbinding
+                    this->voegVerbindingToe(pad[i], pad[i+1], *takdata_terug * -1);
+                }
+
+                if(*takdata_terug <=0) {
+                    // verwijder oude geinverteerde- of nulverbinding
+                    this->verwijderVerbinding(pad[i+1], pad[i]);
+                }
+            }
+        } else {
+            // als de heenverbinding bestaat
+            T* takdata_terug = this->geefTakdata(pad[i+1], pad[i]);
+            if(takdata_terug != 0) {
+                assert(false);
+                //als de terugverbinding bestaat
+                (*takdata_terug) -= pad.geefCapaciteit();
+                if(*takdata_terug < 0) {
+                    assert(false);
+                }
+            } else {
+                (*takdata_heen) += pad.geefCapaciteit();
+            }
+
+
+        }
+    }
+
     return *this;
 }
 
