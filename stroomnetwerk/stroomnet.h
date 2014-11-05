@@ -143,6 +143,7 @@ class Stroomnetwerk:public GraafMetTakdata<GERICHT, T >{
 
         Stroomnetwerk<T>& operator-=(const Pad<T>&);
         Stroomnetwerk<T>& operator+=(const Pad<T>&);
+        void vergrootTak(int start, int eind, T delta);
 
         T geefCapaciteit();
 
@@ -163,92 +164,46 @@ T Stroomnetwerk<T>::geefCapaciteit() {
 
 template <class T>
 Stroomnetwerk<T>& Stroomnetwerk<T>::operator-=(const Pad<T>& pad) {
-
-    if(pad.size() < 2) {
-        std::cout << "ERROR: pad van minder dan 2 knopen" << std::endl;
-        return *this;
-    }
-
     for (int i=0; i<(pad.size()-1); i++ ){
         T* takdata_heen = this->geefTakdata(pad[i],pad[i+1]);
         T* takdata_terug = this->geefTakdata(pad[i+1],pad[i]);
         // als de heenverbinding bestaat
 
-        if(takdata_terug == 0) {
-            this->voegVerbindingToe(pad[i+1], pad[i], pad.geefCapaciteit());
-            takdata_terug = this->geefTakdata(pad[i+1],pad[i]);
-        } else {
-            *takdata_terug += pad.geefCapaciteit();
-        }
+        vergrootTak(pad[i+1],pad[i], pad.geefCapaciteit());
 
         (*takdata_heen) -= pad.geefCapaciteit();
-
-        if(*takdata_heen < 0) {
-            cout << "DIT isM"<< endl;
-            assert(false);
-            // inverteer verbinding
-            this->voegVerbindingToe(pad[i+1], pad[i], *takdata_heen * -1);
-        }
-
-        if(*takdata_heen <=0) {
-            // verwijder oude geinverteerde- of nulverbinding
-            this->verwijderVerbinding(pad[i], pad[i+1]);
-        }
     }
-
-    return *this;
 }
 
 template <class T>
 Stroomnetwerk<T>& Stroomnetwerk<T>::operator+=(const Pad<T>& pad) {
-
-    if(pad.size() < 2) {
-        std::cout << "ERROR: pad van minder dan 2 knopen" << std::endl;
-        return *this;
-    }
-
-    for (int i=0; i<(pad.size()-1); i++ ){
-        T* takdata_heen = this->geefTakdata(pad[i],pad[i+1]);
-        if(takdata_heen == 0) {
-            // als heenverbinding niet bestaat
-            T* takdata_terug = this->geefTakdata(pad[i+1], pad[i]);
-            if(takdata_terug == 0) {
-                // als terugverbinding niet bestaat
-                this->voegVerbindingToe(pad[i], pad[i+1], pad.geefCapaciteit());
-            } else {
-                // als terugverbinding wel bestaat
-                (*takdata_terug) -= pad.geefCapaciteit();
-
-                if(*takdata_terug < 0) {
-                    // inverteer verbinding
-                    this->voegVerbindingToe(pad[i], pad[i+1], *takdata_terug * -1);
-                }
-
-                if(*takdata_terug <=0) {
-                    // verwijder oude geinverteerde- of nulverbinding
-                    this->verwijderVerbinding(pad[i+1], pad[i]);
-                }
+    T padcapaciteit=pad.geefCapaciteit();
+    for (int i=1; i<pad.size(); i++ ){
+        T nucapaciteit=padcapaciteit;
+        int van=pad[i-1];
+        int naar=pad[i];
+        int terugtak=this->verbindingsnummer(naar,van);
+        if (terugtak != -1){
+            if (this->takdatavector[terugtak] <= nucapaciteit){
+                nucapaciteit-=this->takdatavector[terugtak];
+                this->verwijderVerbinding(naar,van);
+                if (nucapaciteit > 0)
+                    vergrootTak(van, naar, nucapaciteit);
+            }else{
+                this->takdatavector[terugtak]-=nucapaciteit;
             }
-        } else {
-            // als de heenverbinding bestaat
-            T* takdata_terug = this->geefTakdata(pad[i+1], pad[i]);
-            if(takdata_terug != 0) {
-                assert(false);
-                //als de terugverbinding bestaat
-                (*takdata_terug) -= pad.geefCapaciteit();
-                if(*takdata_terug < 0) {
-                    assert(false);
-                }
-            } else {
-                (*takdata_heen) += pad.geefCapaciteit();
-            }
-
-
-        }
+        }else
+            vergrootTak(van, naar, padcapaciteit);
     }
-
-    return *this;
 }
 
+template <class T>
+void Stroomnetwerk<T>::vergrootTak(int start, int eind, T delta){
+        int taknr=this->verbindingsnummer(start,eind);
+        if (taknr==-1)
+            taknr=this->voegVerbindingToe(start,eind,delta);
+        else
+            this->takdatavector[taknr]+=delta;
+}
 
 #endif
