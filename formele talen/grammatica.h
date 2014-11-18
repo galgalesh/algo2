@@ -7,17 +7,19 @@ class Grammatica {
 	public:
 		Grammatica(const Regexp& regex);
 		Grammatica(const Regexp &regexp, Symbool &symbool);
-		string geefS() { return this->s; }
+		string geefLetter() { return this->letter; }
 		Symbool geefNiet_terminaal() { return this->niet_terminaal; }
 		Regexp::opcode geefOpcode() { return this->code; }
 		void schrijf() const;
+		void schrijfHTML() const;
 
 	private:
 		Symbool niet_terminaal;
-		string s;
+		string letter;
 		Grammatica *gr1,*gr2;
 		void init(const Regexp &regexp, Symbool &symbool);
 		Regexp::opcode code;
+		void schrijfHTML_rec() const;
 };
 
 Grammatica::Grammatica(const Regexp &regexp){
@@ -35,33 +37,48 @@ void Grammatica::init(const Regexp &regexp, Symbool &symbool) {
 	++symbool;
 
 	if(regexp.geefOpcode() == Regexp::letter) {
-		s = regexp.geefLetter();
+		letter = regexp.geefLetter();
 	} else {
 		gr1 = new Grammatica(*(regexp.geefEersteOperand()), symbool);
-		s += "<" + gr1->geefNiet_terminaal() + ">";
 
-		if(regexp.geefOpcode() == Regexp::ster) {
-			s = "a" + s + "|/";
-		} else {
+		if(!regexp.geefOpcode() == Regexp::ster) {
 			gr2 = new Grammatica(*(regexp.geefTweedeOperand()), symbool);
-			if(regexp.geefOpcode() == Regexp::of) {
-				s = s + "|" + "<" + gr2->geefNiet_terminaal() + ">";
-			} else {
-				s = s + "<" + gr2->geefNiet_terminaal() + ">";
-			}
 		}
 	}
 }
 
-void Grammatica::schrijf() const {
-	cout << this->niet_terminaal << ": " << this->s << endl;
+void Grammatica::schrijfHTML() const {
+	cout << "<!DOCTYPE html>" << endl;
+	cout << "<html><head></head><body>" << endl;
+	cout << "<table><tbody>" << endl;
+	this->schrijfHTML_rec();
+	cout << "</tbody></table>" << endl;
+	cout << "</body></html>" << endl;
+}
 
-	if(this->code != Regexp::letter) {
-		gr1->schrijf();
+void Grammatica::schrijfHTML_rec() const {
+	cout << "	<tr>" << endl;
+	cout << "		<td>&lt;<strong>" + this->niet_terminaal + "</strong>&gt;</td>" << endl;
+	cout << "		<td>&nbsp;::=&nbsp;</td>" << endl;
+	if(this->code == Regexp::letter) {
+		cout << "		<td>" + letter;
+	} else {
+		cout << "		<td>&lt;<strong>" + gr1->niet_terminaal +"</strong>&gt;";
 
 		if(!this->code == Regexp::ster) {
-			gr2->schrijf();
+			cout <<  "&lt;<strong>Y</strong>&gt;";
+		}
+
+	}
+	cout << "</td>" << endl;
+	cout << "	</tr>" << endl;
+	if(this->code != Regexp::letter) {
+		this->gr1->schrijfHTML_rec();
+
+		if(!this->code == Regexp::ster) {
+			this->gr2->schrijfHTML_rec();
 		}
 	}
+
 }
 
