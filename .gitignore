@@ -26,6 +26,7 @@
 *.exe
 *.out
 *.app
+*.bin
 
 # Binary files (because sublime text does not put them in seperate directory)
 main
