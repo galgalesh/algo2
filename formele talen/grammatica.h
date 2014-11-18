@@ -9,17 +9,15 @@ class Grammatica {
 		Grammatica(const Regexp &regexp, Symbool &symbool);
 		string geefS() { return this->s; }
 		Symbool geefNiet_terminaal() { return this->niet_terminaal; }
+		Regexp::opcode geefOpcode() { return this->code; }
 		void schrijf() const;
-
 
 	private:
 		Symbool niet_terminaal;
 		string s;
 		Grammatica *gr1,*gr2;
 		void init(const Regexp &regexp, Symbool &symbool);
-
-
-
+		Regexp::opcode code;
 };
 
 Grammatica::Grammatica(const Regexp &regexp){
@@ -32,16 +30,13 @@ Grammatica::Grammatica(const Regexp &regexp, Symbool &symbool ){
 }
 
 void Grammatica::init(const Regexp &regexp, Symbool &symbool) {
-	//this->op = regex.geefOpcode();
-	//this->karakter = regex.geefLetter();
 	niet_terminaal = symbool;
+	code = regexp.geefOpcode();
 	++symbool;
 
 	if(regexp.geefOpcode() == Regexp::letter) {
 		s = regexp.geefLetter();
-		//cout << "LETTER" << endl;
 	} else {
-		// linkerdeel
 		gr1 = new Grammatica(*(regexp.geefEersteOperand()), symbool);
 		s += "<" + gr1->geefNiet_terminaal() + ">";
 
@@ -56,6 +51,17 @@ void Grammatica::init(const Regexp &regexp, Symbool &symbool) {
 			}
 		}
 	}
+}
+
+void Grammatica::schrijf() const {
 	cout << this->niet_terminaal << ": " << this->s << endl;
+
+	if(this->code != Regexp::letter) {
+		gr1->schrijf();
+
+		if(!this->code == Regexp::ster) {
+			gr2->schrijf();
+		}
+	}
 }
 

@@ -14,6 +14,7 @@ int main(){
 	// cout << r_regex.geefOpcode() << endl;
 
 	Grammatica gr(r_regex);
+	gr.schrijf();
 	// while() {
 	// 	// steek de mogelijke kinderen in s
 	// 	// 
