@@ -20,6 +20,8 @@ class Shiftand{
 };
     
 Shiftand::Shiftand(const uchar* naald, uint _naaldlengte) {
+	naaldlengte = _naaldlengte;
+
 	uint temp = 1;
 	temp = temp << _naaldlengte-1;
 
