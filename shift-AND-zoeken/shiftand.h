@@ -60,8 +60,8 @@ void Shiftand::zoek(std::queue<const uchar*>& plaats, const uchar* hooiberg, uin
 
 		if (r.bits%2 == 1) {
 			//cout << "gevonden!: " << i-(naaldlengte-1) << endl;
-			uint l = i-(naaldlengte-1);
-			plaats.push((uchar*)&(l));
+			uint begin_index = i-(naaldlengte-1);
+			plaats.push(&hooiberg[begin_index]);
 		}
 
 	}
