@@ -2,8 +2,10 @@
 #define __BITPATROON
 #include <iostream>
 using std::ostream;
+
 typedef unsigned int uint;
 const int patroonlengte=sizeof(uint)*8;
+
 class Bitpatroon{
     public:
         uint bits;
