@@ -5,14 +5,14 @@ using std::endl;
 
 
 int main(){
-	uchar* naald = (unsigned char*)&"naald";
-	uint _naaldlengte = 5;
+	uchar* naald = (unsigned char*)&"nana";
+	uint _naaldlengte = 4;
 	Shiftand shiftand = Shiftand(naald, _naaldlengte);
 	//shiftand.schrijf_letterpatroon();
 
 	std::queue<const uchar*> plaats;
-	uchar* hooiberg = (unsigned char*)&"naaldddd";
-	uint hooiberglengte = 8;
+	uchar* hooiberg = (unsigned char*)&"nananana-batman!";
+	uint hooiberglengte = 16;
 
 	shiftand.zoek(plaats,hooiberg,hooiberglengte);
 

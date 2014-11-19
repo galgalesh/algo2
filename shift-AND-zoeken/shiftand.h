@@ -44,12 +44,12 @@ void Shiftand::schrijf_letterpatroon() {
 }
 
 void Shiftand::zoek(std::queue<const uchar*>& plaats, const uchar* hooiberg, uint hooiberglengte){
-	Bitpatroon r = Bitpatroon(256);
+	Bitpatroon r = Bitpatroon(0);
 	uint  een_op_zijn_plaats = 1;
 	een_op_zijn_plaats = een_op_zijn_plaats << naaldlengte-1;
 
 	for(int i = 0; i < hooiberglengte; i++) {
-		cout << "R: " << r << "I: " << i << "karakter: " << hooiberg[i] << endl;
+		//cout << "R: " << r << "  I: " << i << "karakter: " << hooiberg[i] << endl;
 		r = r.shiftrechts(1);
 		r|=een_op_zijn_plaats;		//OR
 
@@ -59,7 +59,9 @@ void Shiftand::zoek(std::queue<const uchar*>& plaats, const uchar* hooiberg, uin
 		r &= letterpatroon[huidigkarakter_int];
 
 		if (r.bits%2 == 1) {
-			cout << "gevonden!" << endl;
+			//cout << "gevonden!: " << i-(naaldlengte-1) << endl;
+			uint l = i-(naaldlengte-1);
+			plaats.push((uchar*)&(l));
 		}
 
 	}
