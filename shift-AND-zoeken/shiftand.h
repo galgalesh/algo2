@@ -1,5 +1,7 @@
 #include "bitpatroon.h"
 #include <queue>
+using std::cout;
+using std::endl;
 
 typedef unsigned int uint;
 typedef unsigned char uchar;
@@ -29,5 +31,8 @@ Shiftand::Shiftand(const uchar* naald, uint _naaldlengte) {
 }
 
 void Shiftand::schrijf_letterpatroon() {
-	
+	for (uint i = 80; i < 240; i++) {
+		char huidig = i;
+		cout << huidig << " :" << letterpatroon[i] << endl;
+	}
 }
