@@ -25,6 +25,7 @@ class Unionfind {
 
 		void uni(int knoop1, int knoop2);
 		int find(int knoop);
+		vector<int> geef_vertegenwoordigers();
 
 
 	private:
@@ -55,4 +56,8 @@ void Unionfind::uni(int knoop1, int knoop2) {
 
 int Unionfind::find(int knoop) {
 	return vertegenwoordigers[knoop];
+}
+
+vector<int> geef_vertegenwoordigers() {
+	return vertegenwoordigers;
 }
