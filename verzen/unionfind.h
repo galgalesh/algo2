@@ -58,6 +58,6 @@ int Unionfind::find(int knoop) {
 	return vertegenwoordigers[knoop];
 }
 
-vector<int> geef_vertegenwoordigers() {
+vector<int> Unionfind::geef_vertegenwoordigers() {
 	return vertegenwoordigers;
 }
