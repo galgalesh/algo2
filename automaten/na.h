@@ -25,17 +25,11 @@ class Na {
 		friend ostream& operator<<(ostream& os, const Na& na);
 		void verwerkKarakter(const uchar c);
 
-
-
-
-
 	private:
 		vector<map<uchar, vector<int> > > buren;
 		vector<bool> staten;
 		void zet_toestand_status(int knoopNr, bool status);
 		void zetBeginStaten();
-
-
 };
 
 
