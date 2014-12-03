@@ -1,6 +1,7 @@
 #include <cassert>
 #include <iostream>
 #include <queue>
+#include <assert.h>
 #include "unionfind.h"
 
 using std::cout;
@@ -54,9 +55,8 @@ using std::endl;
 #include <map>
 #include <stack>
 #include <exception>
-#include <functional>
 
-using namespace std;
+
 
 enum RichtType { GERICHT, ONGERICHT }; 
 
@@ -295,17 +295,17 @@ template<class Takdata>
 class Verbinding
 {
 public:
-    Verbinding(int _van, int _naar, Takdata _gewicht):van(_van),naar(_naar),gewicht(&_gewicht){};
+    Verbinding(int _van, int _naar, Takdata _gewicht):van(_van),naar(_naar),gewicht(_gewicht){};
     int van, naar;
-    Takdata* gewicht;
-    bool operator>(const Verbinding<Takdata>& b) const;
-
+    Takdata gewicht;
 };
 
 template<class Takdata>
-bool Verbinding<Takdata>::operator>(const Verbinding<Takdata>& b) const{
-  return this->gewicht > b.gewicht;
-}
+struct CompVerbinding{
+    bool operator()(const Verbinding<Takdata>& a, const Verbinding<Takdata>& b){
+        return a.gewicht > b.gewicht;
+    }
+};
 
 template<RichtType RT,class Takdata>
 class GraafMetTakdata: public virtual Graaf<RT>{
@@ -329,13 +329,38 @@ public:
     // Schrijft de gegevens van de verbinding met verbindingsnummer v naar outputstream os.
     virtual void schrijfVerbinding(std::ostream &os, int v) const;
 
-    void maakClusters(int aantal);
+    Unionfind maakClusters(int aantal_clusters);
 
 protected:
     std::vector<Takdata> takdatavector;
-    std::priority_queue< Verbinding<Takdata>,vector<Verbinding<Takdata> >, std::greater<Verbinding<Takdata> > > alle_verbindingen;
+    std::priority_queue< Verbinding<Takdata>, vector<Verbinding<Takdata> >, CompVerbinding<Takdata> > alle_verbindingen;
 
 };
+
+template<RichtType RT, class Takdata>
+Unionfind GraafMetTakdata<RT,Takdata>::maakClusters(int aantal_clusters) {
+    assert(aantal_clusters > 0);
+    int aantal_union_op = 0;
+    Unionfind clusters(this->aantalKnopen());
+
+    while (aantal_union_op < this->aantalKnopen() - aantal_clusters && !alle_verbindingen.empty()) {
+        Verbinding<Takdata> kleinste_verbinding = alle_verbindingen.top();
+
+        // indien van en naar tot verschillende clusters behoren
+        if (clusters.find(kleinste_verbinding.van) != clusters.find(kleinste_verbinding.naar)) {
+            // clusters samenvoegen
+            clusters.uni(kleinste_verbinding.van, kleinste_verbinding.naar);
+            aantal_union_op++;
+        }
+
+        alle_verbindingen.pop();
+    }
+
+    // Clustering niet mogelijk wanneer aantal_union_op < aantalKnopen() - aantal_clusters
+    assert(aantal_union_op == this->aantalKnopen() - aantal_clusters);
+
+    return clusters;
+}
 
 
 template<RichtType RT,class Takdata>

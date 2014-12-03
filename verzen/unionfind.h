@@ -33,6 +33,7 @@ class Unionfind {
 		void uni(int knoop1, int knoop2);
 		int find(int knoop);
 		vector<int> geef_vertegenwoordigers();
+		vector<int> geef_knopen(int vertegenwoordiger);
 
 
 	private:
@@ -67,5 +68,15 @@ int Unionfind::find(int knoop) {
 
 vector<int> Unionfind::geef_vertegenwoordigers() {
 	return vertegenwoordigers;
+}
+
+vector<int> Unionfind::geef_knopen(int vertegenwoordiger){
+	vector<int> leden;
+	list<int>::const_iterator it = leden_op_v[vertegenwoordiger].begin();
+	while (it != leden_op_v[vertegenwoordiger].end()){
+		leden.push_back(*it);
+		it++;
+	}
+	return leden;
 }
 #endif
