@@ -1,3 +1,5 @@
+#ifndef __VERS_H
+#define __VERS_H
 #include <vector>
 using std::vector;
 
@@ -26,6 +28,7 @@ class Vers {
 		void schrijf();
 		double afstand(Vers& versnaar);
 		int get_aantalWoorden();
+		friend ostream& operator<<(ostream& os, const Vers& vers);
 
 	private:
 		map<string, int> wdbk;
@@ -97,11 +100,21 @@ double Vers::afstand(Vers& versnaar) {
 		}
 	}
 
-
-	cout << endl << "aantalovereenkomstige woorden: " << aantalOvereenkomende << " " << this->aantalWoorden<< " " << versnaar.get_aantalWoorden()<< endl;
 	return log((double)(this->aantalWoorden + versnaar.get_aantalWoorden()) / (double)(2 * aantalOvereenkomende));
 }
 
 int Vers::get_aantalWoorden() {
 	return aantalWoorden;
 }
+
+ostream& operator<<(ostream& os, const Vers& vers) {
+	map<string,int>::const_iterator it = vers.wdbk.begin();
+
+	while(it != vers.wdbk.end()) {
+		os << it->first << " " << it->second << endl;
+		it++;
+	}
+
+	return os;
+}
+#endif

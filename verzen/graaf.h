@@ -54,8 +54,9 @@ using std::endl;
 #include <map>
 #include <stack>
 #include <exception>
+#include <functional>
 
-
+using namespace std;
 
 enum RichtType { GERICHT, ONGERICHT }; 
 
@@ -294,14 +295,16 @@ template<class Takdata>
 class Verbinding
 {
 public:
-    Verbinding(int _van, int _naar, Takdata _gewicht):van(_van),naar(_naar),gewicht(_gewicht){};
+    Verbinding(int _van, int _naar, Takdata _gewicht):van(_van),naar(_naar),gewicht(&_gewicht){};
     int van, naar;
     Takdata* gewicht;
+    bool operator>(const Verbinding<Takdata>& b) const;
+
 };
 
-template<RichtType RT,class Takdata>
-bool operator<(const Verbinding<Takdata>& a, const Verbinding<Takdata>& b) {
-  return a.gewicht > b.gewicht;
+template<class Takdata>
+bool Verbinding<Takdata>::operator>(const Verbinding<Takdata>& b) const{
+  return this->gewicht > b.gewicht;
 }
 
 template<RichtType RT,class Takdata>
@@ -330,7 +333,7 @@ public:
 
 protected:
     std::vector<Takdata> takdatavector;
-    std::priority_queue< Verbinding<Takdata> > alle_verbindingen;
+    std::priority_queue< Verbinding<Takdata>,vector<Verbinding<Takdata> >, std::greater<Verbinding<Takdata> > > alle_verbindingen;
 
 };
 
@@ -350,7 +353,7 @@ int GraafMetTakdata<RT,Takdata>::voegVerbindingToe(int van, int naar, const Takd
     else
         takdatavector[taknummer]=td;
 
-    alle_verbindingen.push(Verbinding<Takdata>(van, naar, &td));
+    alle_verbindingen.push(Verbinding<Takdata>(van, naar, td));
     return taknummer;
 }
 

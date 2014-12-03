@@ -1,3 +1,5 @@
+#ifndef __UNIONFIND_H
+#define __UNIONFIND_H
 #include <vector>
 using std::vector;
 
@@ -66,3 +68,4 @@ int Unionfind::find(int knoop) {
 vector<int> Unionfind::geef_vertegenwoordigers() {
 	return vertegenwoordigers;
 }
+#endif
