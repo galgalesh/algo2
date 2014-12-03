@@ -9,6 +9,11 @@ using std::cout;
 using std::endl;
 
 
+
+//TODO:
+// aanta clusters
+// geef clusternr(knoop)
+// geef knopen(clusternr)
 class Unionfind {
 	public:
 		Unionfind(int aantalk) {

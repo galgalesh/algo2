@@ -14,8 +14,17 @@ int main () {
 	// uf.uni(2,0);
 	// cout << "find na uni 2,0: " << uf.find(2) << " " << uf.find(0) << endl;
 
-	Vers v = Vers("AaaaAaaaAaaaA 6 ;: bbbb");
-	v.schrijf();
+	Vers v1 = Vers("In the beginning God created the heaven and the earth.");
+	Vers v2 = Vers("And God set them in the firmament of the heaven to give light upon the earth,");
+	Vers v3 = Vers("the the the");
+	Vers v4 = Vers("the the the");
+	Vers v5 = Vers("merlijn is stom");
+	v1.schrijf();
+
+	cout << "afstand tss v1 en v2: " << v1.afstand(v2) << " " << v2.afstand(v1) << endl;
+	cout << "afstand tss v1 en v2: " << v3.afstand(v3) << " " << v3.afstand(v3) << endl;
+
+
 
 	return 0;
 }
